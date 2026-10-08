@@ -2,7 +2,7 @@
 
 > 发现活动 · 一键报名 · 积分排行 · 实时同步。Next.js 全栈演示项目：React Three Fiber 3D 首页、Framer Motion 动效、Server-Sent Events 实时报名计数、Prisma + PostgreSQL 事务化报名。
 
-![Next.js](https://img.shields.io/badge/Next.js-14.2-000000) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6) ![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-2d3748) ![Three.js](https://img.shields.io/badge/Three.js-R3F-000000) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ed)
+![CI](https://github.com/Wyy520-create/campus-flow/actions/workflows/ci.yml/badge.svg) ![Next.js](https://img.shields.io/badge/Next.js-14.2-000000) ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6) ![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-2d3748) ![Three.js](https://img.shields.io/badge/Three.js-R3F-000000) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ed)
 
 ## 这是什么
 
