@@ -1,0 +1,63 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  web-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: npm }
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: 生产构建（页面已声明 force-dynamic，构建期不触库）
+        run: npm run build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/campus_flow?schema=public
+          AUTH_SECRET: ci-build-secret
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 启动演示环境（自动迁移 + 种子数据）
+        run: docker compose up -d --build --wait
+      - name: 首页可访问
+        run: curl -fsS http://localhost:3000/ | grep -q 'Campus Flow'
+      - name: 活动列表 API 返回种子数据
+        run: |
+          curl -fsS http://localhost:3000/api/activities \
+          | python3 -c "import json,sys; d=json.load(sys.stdin); assert len(d) >= 8, len(d); assert all('signed' in x for x in d)"
+      - name: 注册 → 报名 → 计数闭环
+        run: |
+          EMAIL="ci$(date +%s)@campus.dev"
+          curl -fsS -X POST http://localhost:3000/api/auth/register \
+            -H 'Content-Type: application/json' \
+            -d "{\"email\":\"$EMAIL\",\"name\":\"CI 同学\",\"password\":\"ci123456\"}" \
+            -c /tmp/jar -o /dev/null
+          curl -fsS -b /tmp/jar -X POST http://localhost:3000/api/activities/a-002/signup -o /dev/null
+          curl -fsS -b /tmp/jar http://localhost:3000/api/activities/a-002 \
+          | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['signed'] >= 1, d['signed']"
+      - name: 管理员登录并发布活动
+        run: |
+          curl -fsS -X POST http://localhost:3000/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@campus.dev","password":"admin123"}' \
+            -c /tmp/adminjar -o /dev/null
+          curl -fsS -b /tmp/adminjar -X POST http://localhost:3000/api/activities \
+            -H 'Content-Type: application/json' \
+            -d '{"title":"CI 冒烟活动","description":"compose 冒烟自动创建","category":"讲座","location":"线上","startTime":"2027-01-01T10:00:00.000Z","endTime":"2027-01-01T12:00:00.000Z","capacity":10,"points":2}' \
+            -o /dev/null
+      - name: 积分榜已包含种子用户
+        run: |
+          curl -fsS http://localhost:3000/api/leaderboard \
+          | python3 -c "import json,sys; d=json.load(sys.stdin); assert len(d) >= 3, len(d)"
+      - name: 失败时输出容器日志
+        if: failure()
+        run: docker compose logs --tail=120

@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum SignupStatus {
+  SIGNED
+  CANCELLED
+  ATTENDED
+}
+
+model User {
+  id           String     @id
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(STUDENT)
+  points       Int        @default(0)
+  createdAt    DateTime   @default(now())
+  activities   Activity[]
+  signups      Signup[]
+}
+
+model Activity {
+  id          String   @id
+  title       String
+  description String
+  category    String
+  location    String
+  startTime   DateTime
+  endTime     DateTime
+  capacity    Int
+  points      Int
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  createdAt   DateTime @default(now())
+  signups     Signup[]
+
+  @@index([startTime])
+}
+
+model Signup {
+  id         String       @id
+  userId     String
+  activityId String
+  status     SignupStatus @default(SIGNED)
+  createdAt  DateTime     @default(now())
+  user       User         @relation(fields: [userId], references: [id])
+  activity   Activity     @relation(fields: [activityId], references: [id])
+
+  @@unique([userId, activityId])
+  @@index([activityId])
+  @@index([userId])
+}
