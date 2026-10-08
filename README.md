@@ -179,6 +179,15 @@ campus-flow/
 
 本项目的展示重点：全栈闭环（页面 → API → 数据库 → 实时推送）、事务与幂等设计（名额校验、到场加分）、会话安全（HMAC 签名 Cookie），以及 Three.js / 动效带来的前端质感。简历中如被问到，可现场演示“两个浏览器窗口同时看报名计数变化”和“管理员重复点击确认到场不会重复加分”。
 
+## 运行界面
+
+Docker Compose 启动后（`http://localhost:3000`）的实际运行效果，截图随仓库版本管理（`docs/screenshots/`）：
+
+<img src="docs/screenshots/home.jpeg" alt="首页 · Three.js 3D 粒子场景与实时统计" width="100%" />
+<img src="docs/screenshots/activities.jpeg" alt="活动列表 · 分类筛选与名额进度" width="49%" /> <img src="docs/screenshots/detail.jpeg" alt="活动详情 · SSE 实时报名面板" width="49%" />
+<img src="docs/screenshots/leaderboard.jpeg" alt="积分榜 · 到场积分排行" width="49%" /> <img src="docs/screenshots/login.jpeg" alt="登录页 · 演示账号提示" width="49%" />
+<img src="docs/screenshots/admin.jpeg" alt="管理后台 · 发布活动与确认到场" width="49%" /> <img src="docs/screenshots/me.jpeg" alt="个人中心 · 我的报名列表" width="49%" />
+
 ## License
 
 MIT License. Copyright (c) 2026 余阳辉。
